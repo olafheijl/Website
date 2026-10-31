@@ -1,10 +1,12 @@
 # Ideeën voor later
 
-Deze lijst beschrijft mogelijke uitbreidingen. De huidige wijziging ordent alleen het bestaande portfolio en de twee spellen; onderstaande functies zijn nog niet geïmplementeerd.
+Deze lijst onderscheidt wat al werkt van mogelijke vervolgstappen.
 
-## Realtime multiplayer-minigame
+## Bordspellen: gerealiseerd
 
-Een klein spel met twee spelers die dezelfde spelstatus zien. Begin met een lokale lobby en een eenvoudige spelregel. Een volgende stap kan een WebSocket-server in `server/` zijn, met bijbehorende browsercode onder `public/assets/js/multiplayer/`. Bepaal dan hoe spelers verbinden en hoe de server spelacties controleert.
+Boter, kaas en eieren, 4 op een rij en Gomoku werken met twee mensen op één scherm en met twee browsers via een kamercode. De Python-server controleert de spelregels en deelt de spelstatus realtime via SSE. Alles blijft op localhost.
+
+Een volgende stap is spelen tegen de computer. Die tegenstanders zijn nog niet gebouwd. Samen spelen vanaf verschillende computers of via internet is ook nog niet ingesteld.
 
 ## Algorithm Visualizer
 

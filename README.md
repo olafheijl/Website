@@ -1,6 +1,6 @@
 # Olaf — Portfolio & speelveld
 
-Een Nederlandstalig portfolio en twee browsergames: Memory en een reactietest met een lokaal bewaard persoonlijk record. We ontwikkelen op **`dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
+Een Nederlandstalig portfolio met Memory, een reactietest en drie spellen voor twee mensen: Boter, kaas en eieren, 4 op een rij en Gomoku. We ontwikkelen op **`dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
 
 ## Projectstructuur
 
@@ -9,15 +9,20 @@ Website/
 ├── public/                       # Alleen deze map wordt door de server aangeboden
 │   ├── index.html                # Portfolio
 │   ├── pages/
-│   │   └── games.html            # Speelveld
+│   │   ├── games.html            # Speelveld
+│   │   └── multiplayer.html      # Spellen voor twee spelers
 │   └── assets/
 │       ├── css/
 │       │   ├── base.css          # Gedeelde stijl, navigatie en knoppen
 │       │   └── pages/            # Stijl per pagina
 │       ├── js/
-│       │   └── games/            # Pagina-entrypoint en een module per spel
+│       │   ├── games/            # Memory en reactietest
+│       │   └── multiplayer/      # Lobby, verbinding en interactieve borden
 │       └── images/               # Afbeeldingen en favicon
-├── tests/browser/                # Functionele browsertests
+├── server/                       # Lokale spelregels, kamers en HTTP/SSE-server
+├── tests/
+│   ├── browser/                  # Functionele browsertests
+│   └── server/                   # Spelregels en kamers testen
 ├── docs/                         # Architectuur en toekomstige ideeën
 ├── start.py                      # Lokale server
 ├── AGENTS.md                     # Werkafspraken voor code-assistenten
@@ -65,7 +70,29 @@ De server luistert uitsluitend op `127.0.0.1`, dus niet op het lokale netwerk. A
 
 Wanneer je de server in de cloudomgeving start, draait hij op de cloudcomputer. Dat maakt hem niet bereikbaar via localhost op je eigen computer.
 
-Lettertypen, stijlen en spelcode worden lokaal geladen. Alleen de beste reactietijd wordt in `localStorage` opgeslagen. Er is geen backend, tracking of gebruikersaccount.
+Lettertypen, stijlen en spelcode worden lokaal geladen. De beste reactietijd staat in `localStorage`. Het tabblad bewaart de toegang tot een spel in `sessionStorage`; borden en kamers staan alleen in het geheugen van de Python-server. Er zijn geen accounts, database, tracking of externe diensten.
+
+## Met twee spelers spelen
+
+Open het **Speelveld** en kies een van de nieuwe spellen, of ga direct naar **http://localhost:8000/pages/multiplayer.html**.
+
+**Op één scherm (standaard):** kies een spel en klik op **Speel op één scherm**. Twee mensen plaatsen om de beurt een steen in dezelfde browser. De interface toont welke speler aan zet is. Na afloop kun je direct opnieuw spelen; de andere speler begint de volgende ronde.
+
+**Met twee tabbladen of browsers:** open de optie voor een kamercode. Speler 1 maakt een kamer, speler 2 opent de multiplayerpagina in een ander tabblad of een andere browser op dezelfde computer en sluit aan met de code. Gebruik in beide browsers hetzelfde adres en dezelfde poort. Een kamer heeft precies twee plaatsen. Zetten verschijnen live op beide borden. Bij opnieuw spelen moeten beide spelers instemmen.
+
+Spelregels:
+
+- **Boter, kaas en eieren:** 3 × 3, drie dezelfde tekens op een rij.
+- **4 op een rij:** 6 × 7, stenen vallen naar het laagste vrije vak in een kolom. Vier op een rij wint.
+- **Gomoku:** 15 × 15, vijf of meer stenen op een rij wint (vrije variant, geen Renju-beperkingen). Veeg op kleine schermen horizontaal over het bord om de andere kolommen te zien.
+
+Horizontaal, verticaal en diagonaal tellen. Een vol bord zonder winnaar is gelijkspel. Je kunt de borden bedienen met muis of toetsenbord: Tab, pijltjestoetsen en Enter/spatie. Voor 4 op een rij kies je een kolom met de knoppen boven het bord. Er is nog geen computertegenstander.
+
+Herladen van hetzelfde tabblad behoudt je plek en bord zolang de server draait. Bij een verbroken liveverbinding pauzeert het spel; de browser probeert opnieuw te verbinden. Expliciet verlaten sluit de kamer voor beide spelers. Kamers vervallen na twee uur zonder spel- of verbindingsactiviteit en verdwijnen bij een serverherstart.
+
+De server blijft uitsluitend bereikbaar op deze computer. Samen spelen vanaf twee verschillende apparaten of via internet is nog niet ingesteld.
+
+Na een update: stop een nog draaiende server met **Ctrl+C**, haal de nieuwste `dev` op en start `python start.py` opnieuw. Zo wordt ook de nieuwe servercode geladen.
 
 ## GitHub is alleen de opslagplek
 
@@ -76,13 +103,14 @@ Voor lokaal draaien zijn GitHub Pages en toegang tot de GitHub-API niet nodig. E
 In deze cloudomgeving zijn Playwright en Chromium beschikbaar:
 
 ```sh
-node --test tests/browser/website.test.cjs
+python3 -m unittest discover -s tests/server -v
+node --test tests/browser/website.test.cjs tests/browser/multiplayer.test.cjs
 ```
 
-De tests starten zelf `start.py` op een tijdelijke poort en controleren de publieke bestanden, afscherming van ontwikkelbestanden, navigatie, mobiele weergave, een volledig Memory-spel, resetten tijdens een beurt, te vroeg reageren, een geldige reactie en het bewaren van het record. Buiten deze omgeving zijn Node.js, `playwright` en Chromium nodig; stel zo nodig `CHROMIUM_PATH` in op het browserpad. Deze hulpmiddelen zijn alleen nodig voor de tests, niet om de website te gebruiken.
+Op Windows gebruik je `python` in plaats van `python3` voor de servertests. De tests controleren spelregels, gelijktijdige zetten, kamers en herstarten van rondes. Browsertests starten zelf `start.py` op een tijdelijke poort en controleren zowel de bestaande spellen als complete partijen van de drie nieuwe spellen op één scherm en met twee onafhankelijke browsersessies. Ook herladen, opnieuw spelen, mobiele weergave, afscherming van ontwikkelbestanden, ongeldige aanvragen en verbindingsverlies worden gecontroleerd. Buiten deze omgeving zijn Node.js, `playwright` en Chromium nodig; stel zo nodig `CHROMIUM_PATH` in op het browserpad. Deze hulpmiddelen zijn alleen nodig voor de tests, niet om de website te gebruiken.
 
 ## Verder bouwen
 
-Elke pagina krijgt een eigen stylesheet en elk spel een eigen JavaScript-module. Nieuwe toepassingen krijgen hun eigen pagina en modulemap. De plannen voor multiplayer, een A*-visualizer en computer vision staan in `docs/roadmap.md`; ze zijn nog niet gebouwd.
+Elke pagina krijgt een eigen stylesheet en elke toepassing een eigen JavaScript-modulemap. De drie bordspellen delen een lobby en bordweergave; hun spelregels staan in `server/games.py`. De plannen voor computertegenstanders, een A*-visualizer en computer vision staan in `docs/roadmap.md`; ze zijn nog niet gebouwd.
 
 Werk op `dev` en push met `git push origin dev`. Samenvoegen naar `main` gebeurt later via een pull request, na review. Een push naar `dev` publiceert de website niet.

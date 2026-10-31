@@ -137,7 +137,8 @@ test("portfolio and games work in a real browser", async (t) => {
         if (symbol !== (await cards.nth(1).textContent())) break;
         assert.ok(attempt < 29, "Found a mismatch");
       }
-      await cards.nth(2).click();
+      // Dispatch immediately: scrolling must not consume the brief mismatch lock.
+      await cards.nth(2).evaluate((button) => button.click());
       assert.equal(
         await cards.nth(2).textContent(),
         "?",
@@ -152,6 +153,7 @@ test("portfolio and games work in a real browser", async (t) => {
   );
 
   await t.test("a complete memory game can be won", async () => {
+    await page.locator("#memory-reset").click();
     const cards = page.locator(".memory-card");
     const known = new Map();
     for (let i = 0; i < 12; i += 2) {

@@ -2,8 +2,11 @@
 
 import argparse
 from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from http.server import ThreadingHTTPServer
 from pathlib import Path
+
+from server.http import WebsiteHandler
+from server.rooms import RoomStore
 
 
 def main():
@@ -14,7 +17,7 @@ def main():
         parser.error("De poort moet tussen 0 en 65535 liggen.")
 
     root = Path(__file__).resolve().parent / "public"
-    handler = partial(SimpleHTTPRequestHandler, directory=str(root))
+    handler = partial(WebsiteHandler, directory=str(root), store=RoomStore())
     try:
         server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
     except OSError as error:
