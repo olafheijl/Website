@@ -1,6 +1,6 @@
 # Olaf — Portfolio & speelveld
 
-Een Nederlandstalig portfolio en twee browsergames: Memory en een reactietest met een lokaal bewaard persoonlijk record. We ontwikkelen op **`Dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
+Een Nederlandstalig portfolio en twee browsergames: Memory en een reactietest met een lokaal bewaard persoonlijk record. We ontwikkelen op **`dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
 
 ## Projectstructuur
 
@@ -30,18 +30,18 @@ Zie [architectuur](docs/architecture.md) voor plaatsingsregels en [projectideeë
 
 Deze versie draait lokaal. Python 3 is nodig; er zijn geen extra packages, API-sleutels of buildstappen nodig.
 
-1. Selecteer op GitHub de branch **Dev**, download via **Code → Download ZIP** en pak uit. Of clone direct deze branch:
+1. Selecteer op GitHub de branch **dev**, download via **Code → Download ZIP** en pak uit. Of clone direct deze branch:
 
    ```sh
-   git clone --branch Dev https://github.com/olafheijl/Website.git
+   git clone --branch dev https://github.com/olafheijl/Website.git
    cd Website
    ```
 
-   Heb je al een lokale checkout? Stap dan over op Dev:
+   Heb je al een lokale checkout? Stap dan over op dev:
 
    ```sh
    git fetch origin
-   git switch Dev
+   git switch dev
    git pull --ff-only
    ```
 2. Open een terminal in de map met `start.py`.
@@ -85,4 +85,4 @@ De tests starten zelf `start.py` op een tijdelijke poort en controleren de publi
 
 Elke pagina krijgt een eigen stylesheet en elk spel een eigen JavaScript-module. Nieuwe toepassingen krijgen hun eigen pagina en modulemap. De plannen voor multiplayer, een A*-visualizer en computer vision staan in `docs/roadmap.md`; ze zijn nog niet gebouwd.
 
-Werk op `Dev` en push met `git push origin Dev`. Samenvoegen naar `main` gebeurt later via een pull request, na review. Een push naar `Dev` publiceert de website niet.
+Werk op `dev` en push met `git push origin dev`. Samenvoegen naar `main` gebeurt later via een pull request, na review. Een push naar `dev` publiceert de website niet.

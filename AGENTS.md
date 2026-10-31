@@ -1,6 +1,6 @@
 # Werkafspraken
 
-- Werk standaard op de branch `Dev` (hoofdletter D). Controleer de branch voor edits en pushes. Push of merge niet naar `main` zonder expliciet verzoek.
+- Werk standaard op de branch `dev` (kleine letters). Controleer de branch voor edits en pushes. Push of merge niet naar `main` zonder expliciet verzoek.
 - Gebruik de bestaande checkout. Maak geen extra worktree tenzij de gebruiker daarom vraagt.
 - De website blijft voorlopig uitsluitend lokaal draaien. Configureer of publiceer geen hosting zonder verzoek.
 - Alleen `public/` wordt geserveerd. Houd scripts voor ontwikkeling, tests, documentatie en toekomstige backendcode daarbuiten.

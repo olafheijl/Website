@@ -31,10 +31,10 @@ Voeg een link toe aan het portfolio en een relevante browsertest. Maak pas extra
 
 ## Branches
 
-- `Dev` (met hoofdletter D) is de ontwikkelbranch.
+- `dev` (kleine letters) is de ontwikkelbranch.
 - `main` is de stabiele versie en wordt alleen na expliciete toestemming bijgewerkt.
 - Controleer voor werk en voor een push de actieve branch met `git branch --show-current`.
-- Test wijzigingen op `Dev`, commit ze en push met `git push origin Dev`.
-- Gebruik later een pull request van `Dev` naar `main` om een versie te reviewen.
+- Test wijzigingen op `dev`, commit ze en push met `git push origin dev`.
+- Gebruik later een pull request van `dev` naar `main` om een versie te reviewen.
 
 Lokaal starten en GitHub gebruiken als broncodeopslag vereisen geen GitHub Pages of GitHub-API-toegang.
