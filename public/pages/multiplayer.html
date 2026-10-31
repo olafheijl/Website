@@ -200,26 +200,46 @@
             <h3 id="match-status" role="status" aria-live="polite"></h3>
             <div class="board-viewport">
               <div id="column-controls" class="column-controls" hidden></div>
-              <div
-                id="board"
-                class="board"
-                role="group"
-                aria-label="Spelbord"
-              ></div>
+              <div id="board-surface" class="board-surface">
+                <div
+                  class="board-coordinates coordinates-top"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-left"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  id="board"
+                  class="board"
+                  role="group"
+                  aria-label="Spelbord"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-right"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-bottom"
+                  aria-hidden="true"
+                ></div>
+              </div>
             </div>
             <p class="board-tip">
               Gebruik de muis of Tab en de pijltjestoetsen. Bevestig een zet met
               Enter of spatie.
             </p>
-            <button
-              id="rematch"
-              class="button button-dark"
-              type="button"
-              hidden
-            >
-              Opnieuw spelen
-            </button>
-            <p id="rematch-status" class="rematch-status" role="status"></p>
+            <div class="round-actions">
+              <button
+                id="rematch"
+                class="button button-dark"
+                type="button"
+                hidden
+              >
+                Opnieuw spelen
+              </button>
+              <p id="rematch-status" class="rematch-status" role="status"></p>
+            </div>
           </div>
         </div>
       </section>

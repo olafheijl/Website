@@ -11,6 +11,7 @@ export function initMemory() {
   let turns = 0;
   let pairs = 0;
   let flipTimer;
+  let deck = [];
 
   function newMemoryGame() {
     clearTimeout(flipTimer);
@@ -26,17 +27,23 @@ export function initMemory() {
       const j = Math.floor(Math.random() * (i + 1));
       [cards[i], cards[j]] = [cards[j], cards[i]];
     }
-    board.replaceChildren(
-      ...cards.map((symbol, index) => {
-        const card = document.createElement("button");
+    deck = cards;
+    // Reuse the cards so a reset does not remove the browser's scroll anchor.
+    cards.forEach((_, index) => {
+      let card = board.children[index];
+      if (!card) {
+        card = document.createElement("button");
         card.type = "button";
-        card.className = "memory-card";
-        card.textContent = "?";
-        card.setAttribute("aria-label", `Kaart ${index + 1}, omgedraaid`);
-        card.addEventListener("click", () => revealCard(card, symbol, index));
-        return card;
-      }),
-    );
+        card.addEventListener("click", () =>
+          revealCard(card, deck[index], index),
+        );
+        board.append(card);
+      }
+      card.className = "memory-card";
+      card.textContent = "?";
+      card.removeAttribute("aria-disabled");
+      card.setAttribute("aria-label", `Kaart ${index + 1}, omgedraaid`);
+    });
   }
 
   function revealCard(card, symbol, index) {

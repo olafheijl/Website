@@ -84,7 +84,7 @@ Spelregels:
 
 - **Boter, kaas en eieren:** 3 × 3, drie dezelfde tekens op een rij.
 - **4 op een rij:** 6 × 7, stenen vallen naar het laagste vrije vak in een kolom. Vier op een rij wint.
-- **Gomoku:** 15 × 15, vijf of meer stenen op een rij wint (vrije variant, geen Renju-beperkingen). Veeg op kleine schermen horizontaal over het bord om de andere kolommen te zien.
+- **Gomoku:** plaats zwarte en witte stenen op de 15 × 15 kruispunten van het houten bord (14 × 14 vierkantjes). Coördinaten A–O en 15–1 helpen bij het aanwijzen van zetten. Een ringetje markeert de laatste zet; de winnende rij krijgt een goudkleurige rand. Vijf of meer op een rij wint (vrije variant, geen Renju-beperkingen). Veeg op kleine schermen horizontaal over het bord om de andere kolommen te zien.
 
 Horizontaal, verticaal en diagonaal tellen. Een vol bord zonder winnaar is gelijkspel. Je kunt de borden bedienen met muis of toetsenbord: Tab, pijltjestoetsen en Enter/spatie. Voor 4 op een rij kies je een kolom met de knoppen boven het bord. Er is nog geen computertegenstander.
 

@@ -216,4 +216,36 @@ test("portfolio and games work in a real browser", async (t) => {
       );
     },
   );
+  await t.test("memory and reaction controls preserve scrolling", async () => {
+    for (const width of [1440, 375]) {
+      await page.setViewportSize({ width, height: 812 });
+      await page.goto(`http://127.0.0.1:${port}/pages/games.html`);
+      async function clickWithoutJump(locator) {
+        await locator.evaluate((element) =>
+          window.scrollTo({
+            top:
+              scrollY + element.getBoundingClientRect().top - innerHeight / 2,
+            behavior: "instant",
+          }),
+        );
+        const before = await page.evaluate(() => scrollY);
+        await locator.click();
+        await page.waitForTimeout(100);
+        const after = await page.evaluate(() => scrollY);
+        assert.ok(
+          Math.abs(after - before) <= 2,
+          `${width}px: scroll moved from ${before} to ${after}`,
+        );
+      }
+      await clickWithoutJump(page.locator(".memory-card").nth(0));
+      await clickWithoutJump(page.locator(".memory-card").nth(1));
+      await clickWithoutJump(page.locator("#memory-reset"));
+      await clickWithoutJump(page.locator("#reaction-pad"));
+      await clickWithoutJump(page.locator("#reaction-pad"));
+      assert.equal(
+        await page.locator("#reaction-pad").getAttribute("data-state"),
+        "early",
+      );
+    }
+  });
 });

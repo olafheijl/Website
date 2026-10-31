@@ -40,6 +40,7 @@ const renderBoard = createBoard(async (row, col) => {
 function render() {
   if (!state) return;
   $("#match-title").textContent = state.name;
+  $("#match").dataset.kind = state.kind;
   $("#room-card").hidden = state.local;
   $("#local-card").hidden = !state.local;
   $("#leave-room").textContent = state.local
@@ -54,7 +55,7 @@ function render() {
     connect4:
       "Laat een steen in een kolom vallen. Vier op een rij wint, in elke richting.",
     gomoku:
-      "Plaats een steen op het 15 × 15-bord. Vijf of meer op een rij wint. Vrije regels, zonder verboden zetten.",
+      "Leg om de beurt een zwarte of witte steen op een kruispunt. Vijf of meer op een rij wint. Vrije regels, zonder verboden zetten.",
   };
   $("#rules").textContent = rules[state.kind];
   $(".board-tip").textContent =
@@ -70,7 +71,11 @@ function render() {
         ? seat === 1
           ? "Kruisjes · X"
           : "Rondjes · O"
-        : `Stenen met nummer ${seat}`
+        : state.kind === "gomoku"
+          ? seat === 1
+            ? "Zwarte stenen"
+            : "Witte stenen"
+          : `Stenen met nummer ${seat}`
       : state.players < seat
         ? "Wacht op een speler"
         : state.closed
@@ -144,7 +149,6 @@ async function action(name, data) {
   pending = true;
   feedback();
   render();
-  $("#match").scrollIntoView({ block: "start" });
   try {
     receive(await request(`/api/rooms/${session.code}/${name}`, data, session));
   } catch (error) {
@@ -266,7 +270,7 @@ $("#leave-room").addEventListener("click", async () => {
   $("#lobby").hidden = false;
   $("#match").hidden = true;
   feedback();
-  $('.game-choice[aria-pressed="true"]').focus();
+  $('.game-choice[aria-pressed="true"]').focus({ preventScroll: true });
 });
 
 $("#rematch").addEventListener("click", () =>

@@ -1,6 +1,7 @@
 export function createBoard(onMove) {
   const board = document.querySelector("#board");
   const columns = document.querySelector("#column-controls");
+  const surface = document.querySelector("#board-surface");
   let state;
   let currentKind;
   let activeIndex = 0;
@@ -47,6 +48,25 @@ export function createBoard(onMove) {
       activeIndex = 0;
       board.className = `board board-${state.kind}`;
       board.style.setProperty("--cols", state.cols);
+      board.setAttribute(
+        "aria-label",
+        state.kind === "gomoku" ? "Gomoku: 15 bij 15 kruispunten" : "Spelbord",
+      );
+      surface.classList.toggle("gomoku-surface", state.kind === "gomoku");
+      document.querySelectorAll(".board-coordinates").forEach((axis) => {
+        const horizontal =
+          axis.classList.contains("coordinates-top") ||
+          axis.classList.contains("coordinates-bottom");
+        axis.replaceChildren(
+          ...Array.from({ length: 15 }, (_, index) => {
+            const label = document.createElement("span");
+            label.textContent = horizontal
+              ? String.fromCharCode(65 + index)
+              : String(15 - index);
+            return label;
+          }),
+        );
+      });
       board.replaceChildren(
         ...state.board.map((_, index) => {
           const cell = document.createElement(
@@ -55,6 +75,12 @@ export function createBoard(onMove) {
           cell.className = "board-cell";
           if (cell.tagName === "BUTTON") cell.type = "button";
           cell.dataset.index = index;
+          if (state.kind === "gomoku") {
+            const stone = document.createElement("span");
+            stone.className = "stone";
+            stone.setAttribute("aria-hidden", "true");
+            cell.append(stone);
+          }
           return cell;
         }),
       );
@@ -73,6 +99,7 @@ export function createBoard(onMove) {
       );
     }
     columns.hidden = state.kind !== "connect4";
+    board.dataset.turn = state.turn;
     [...columns.children].forEach((button, col) => {
       button.disabled = !canMove || state.board[col] !== 0;
     });
@@ -84,14 +111,23 @@ export function createBoard(onMove) {
             ? "X"
             : "O"
           : String(player);
-      cell.textContent = player ? symbol : "";
+      if (state.kind !== "gomoku") {
+        const text = player ? symbol : "";
+        if (cell.textContent !== text) cell.textContent = text;
+      }
       cell.dataset.player = player;
       cell.classList.toggle("winning", state.winning_cells.includes(index));
       cell.classList.toggle("last-move", state.last_move === index);
-      cell.setAttribute(
-        "aria-label",
-        `Rij ${Math.floor(index / state.cols) + 1}, kolom ${(index % state.cols) + 1}: ${player ? `speler ${player}` : "leeg"}`,
-      );
+      const position =
+        state.kind === "gomoku"
+          ? `Kruispunt ${String.fromCharCode(65 + (index % state.cols))}${state.rows - Math.floor(index / state.cols)}`
+          : `Rij ${Math.floor(index / state.cols) + 1}, kolom ${(index % state.cols) + 1}`;
+      const occupant = player
+        ? state.kind === "gomoku"
+          ? `${player === 1 ? "zwart" : "wit"}, speler ${player}`
+          : `speler ${player}`
+        : "leeg";
+      cell.setAttribute("aria-label", `${position}: ${occupant}`);
       if (cell.tagName === "BUTTON") {
         // Keep cells focusable for board navigation even while the opponent plays.
         cell.setAttribute("aria-disabled", String(!canMove || player !== 0));

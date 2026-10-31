@@ -88,6 +88,11 @@ test("local and realtime multiplayer", { timeout: 120000 }, async (t) => {
       () => document.querySelector("#room-code").textContent.length === 6,
     );
     const code = await host.locator("#room-code").textContent();
+    await host.waitForFunction(() =>
+      document
+        .querySelector("#match-status")
+        .textContent.includes("Wachten op speler 2"),
+    );
     assert.match(
       await host.locator("#match-status").textContent(),
       /Wachten op speler 2/,
@@ -158,9 +163,26 @@ test("local and realtime multiplayer", { timeout: 120000 }, async (t) => {
             fullPage: true,
           });
           await page
+            .locator("#rematch")
+            .evaluate((button) =>
+              window.scrollTo({
+                top:
+                  scrollY +
+                  button.getBoundingClientRect().top -
+                  innerHeight / 2,
+                behavior: "instant",
+              }),
+            );
+          const beforeRematch = await page.evaluate(() => scrollY);
+          await page
             .getByRole("button", { name: "Opnieuw spelen", exact: true })
             .click();
           await waitMoves(page, 0);
+          await page.waitForTimeout(200);
+          assert.ok(
+            Math.abs((await page.evaluate(() => scrollY)) - beforeRematch) <= 2,
+            `${kind}: rematch preserves scroll position`,
+          );
           assert.equal(
             await page.locator("#round-label").textContent(),
             "RONDE 2",
@@ -274,6 +296,218 @@ test("local and realtime multiplayer", { timeout: 120000 }, async (t) => {
       },
     );
   }
+
+  await t.test(
+    "moves preserve scroll position on desktop and mobile",
+    async () => {
+      for (const viewport of [
+        { width: 1440, height: 800 },
+        { width: 375, height: 812 },
+      ]) {
+        for (const kind of Object.keys(games)) {
+          const page = await player();
+          try {
+            await page.setViewportSize(viewport);
+            await page.goto(`${base}/pages/multiplayer.html?game=${kind}`);
+            await page
+              .getByRole("button", { name: "Speel op één scherm", exact: true })
+              .click();
+            await page.waitForFunction(
+              () =>
+                document.querySelector("#match-status").textContent ===
+                "Speler 1 is aan zet.",
+            );
+            const target =
+              kind === "connect4"
+                ? page.locator('#column-controls button[data-col="3"]')
+                : page.locator(
+                    `#board button[data-index="${kind === "gomoku" ? 112 : 4}"]`,
+                  );
+            await target.evaluate((element) => {
+              window.scrollTo({
+                top:
+                  scrollY +
+                  element.getBoundingClientRect().top -
+                  innerHeight / 2,
+                behavior: "instant",
+              });
+            });
+            const before = await page.evaluate(() => ({
+              y: scrollY,
+              height: document.querySelector("#board").getBoundingClientRect()
+                .height,
+            }));
+            let navigations = 0;
+            page.on("framenavigated", () => navigations++);
+            await target.click();
+            await waitMoves(page, 1);
+            // Also catch delayed smooth scrolling, after the move request has finished.
+            await page.waitForTimeout(600);
+            const after = await page.evaluate(() => ({
+              y: scrollY,
+              height: document.querySelector("#board").getBoundingClientRect()
+                .height,
+            }));
+            assert.ok(
+              Math.abs(after.y - before.y) <= 2,
+              `${kind} ${viewport.width}px: scroll moved from ${before.y} to ${after.y}`,
+            );
+            assert.ok(
+              Math.abs(after.height - before.height) <= 1,
+              `${kind}: board height changed`,
+            );
+            assert.equal(
+              navigations,
+              0,
+              "A move does not navigate or reload the page",
+            );
+          } finally {
+            await page.context().close();
+          }
+        }
+      }
+    },
+  );
+
+  await t.test(
+    "Gomoku stones, labels and grid stay aligned at every board size",
+    async () => {
+      const page = await player();
+      try {
+        await page.goto(`${base}/pages/multiplayer.html?game=gomoku`);
+        await page.getByRole("button", { name: "Speel op één scherm" }).click();
+        await page.waitForFunction(
+          () =>
+            document.querySelector("#match-status").textContent ===
+            "Speler 1 is aan zet.",
+        );
+        for (const [i, index] of [112, 113, 97, 98, 82, 83].entries()) {
+          await place(page, "gomoku", index);
+          await waitMoves(page, i + 1);
+        }
+        assert.equal(await page.locator("#board button").count(), 225);
+        assert.match(
+          await page.locator('[data-index="112"]').getAttribute("aria-label"),
+          /H8: zwart/,
+        );
+        assert.match(
+          await page.locator('[data-index="113"]').getAttribute("aria-label"),
+          /I8: wit/,
+        );
+        assert.equal(
+          await page.locator('#board [data-index="112"]').textContent(),
+          "",
+        );
+        assert.equal(
+          await page.locator(".coordinates-top span").first().textContent(),
+          "A",
+        );
+        assert.equal(
+          await page.locator(".coordinates-top span").last().textContent(),
+          "O",
+        );
+        assert.equal(
+          await page.locator(".coordinates-left span").first().textContent(),
+          "15",
+        );
+        assert.equal(
+          await page.locator(".coordinates-left span").last().textContent(),
+          "1",
+        );
+        for (const width of [1440, 768, 375]) {
+          await page.setViewportSize({ width, height: 900 });
+          const geometry = await page.evaluate(() => {
+            const board = document.querySelector("#board");
+            const rect = board.getBoundingClientRect();
+            const first = board.firstElementChild.getBoundingClientRect();
+            const last = board.lastElementChild.getBoundingClientRect();
+            const grid = getComputedStyle(board, "::before");
+            const stone = board
+              .querySelector('[data-index="112"] .stone')
+              .getBoundingClientRect();
+            const intersection = board
+              .querySelector('[data-index="112"]')
+              .getBoundingClientRect();
+            const label = document
+              .querySelector(".coordinates-top span")
+              .getBoundingClientRect();
+            return {
+              square: Math.abs(rect.width - rect.height),
+              firstX: Math.abs(
+                first.x + first.width / 2 - rect.x - parseFloat(grid.left),
+              ),
+              firstY: Math.abs(
+                first.y + first.height / 2 - rect.y - parseFloat(grid.top),
+              ),
+              lastX: Math.abs(
+                rect.right - parseFloat(grid.right) - last.x - last.width / 2,
+              ),
+              lastY: Math.abs(
+                rect.bottom -
+                  parseFloat(grid.bottom) -
+                  last.y -
+                  last.height / 2,
+              ),
+              stoneSquare: Math.abs(stone.width - stone.height),
+              stoneX: Math.abs(
+                stone.x +
+                  stone.width / 2 -
+                  intersection.x -
+                  intersection.width / 2,
+              ),
+              stoneY: Math.abs(
+                stone.y +
+                  stone.height / 2 -
+                  intersection.y -
+                  intersection.height / 2,
+              ),
+              labelX: Math.abs(
+                label.x + label.width / 2 - first.x - first.width / 2,
+              ),
+            };
+          });
+          for (const [name, error] of Object.entries(geometry))
+            assert.ok(error < 1, `${name} at ${width}px: ${error}`);
+          assert.ok(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+          );
+          await page.screenshot({
+            path: `/tmp/olaf-gomoku-${width}.png`,
+            fullPage: true,
+          });
+        }
+        // Swiping the wide board must not be undone when a stone is placed.
+        await page.locator(".board-viewport").evaluate((viewport) => {
+          viewport.scrollLeft = 100;
+        });
+        const next = page.locator('#board button[data-index="127"]');
+        await next.evaluate((element) =>
+          window.scrollTo({
+            top:
+              scrollY + element.getBoundingClientRect().top - innerHeight / 2,
+            behavior: "instant",
+          }),
+        );
+        const before = await page.evaluate(() => ({
+          y: scrollY,
+          x: document.querySelector(".board-viewport").scrollLeft,
+        }));
+        await next.click();
+        await waitMoves(page, 7);
+        await page.waitForTimeout(600);
+        const after = await page.evaluate(() => ({
+          y: scrollY,
+          x: document.querySelector(".board-viewport").scrollLeft,
+        }));
+        assert.ok(Math.abs(after.y - before.y) <= 2);
+        assert.ok(Math.abs(after.x - before.x) <= 2);
+      } finally {
+        await page.context().close();
+      }
+    },
+  );
 
   await t.test("draw, keyboard moves and occupied cells", async () => {
     const page = await player();
