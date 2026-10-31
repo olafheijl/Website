@@ -21,6 +21,8 @@ function canMove() {
     !pending &&
     state &&
     !state.closed &&
+    !state.thinking &&
+    !state.computer_error &&
     state.players === 2 &&
     state.connected.every(Boolean) &&
     state.winner === null &&
@@ -41,11 +43,16 @@ function render() {
   if (!state) return;
   $("#match-title").textContent = state.name;
   $("#match").dataset.kind = state.kind;
-  $("#room-card").hidden = state.local;
-  $("#local-card").hidden = !state.local;
-  $("#leave-room").textContent = state.local
-    ? "Ander spel kiezen"
-    : "Verlaat kamer";
+  $("#room-card").hidden = state.local || state.computer;
+  $("#local-card").hidden = !state.local && !state.computer;
+  $("#local-card .eyebrow").textContent = state.computer
+    ? "JIJ TEGEN DE COMPUTER"
+    : "ÉÉN SCHERM · TWEE SPELERS";
+  $("#local-card p").textContent = state.computer
+    ? "Jij bent speler 1. De computer speelt automatisch zijn eigen zetten. Wie begint wisselt na elke ronde."
+    : "Speel om de beurt. De speler met het label ‘Aan zet’ mag de volgende steen plaatsen.";
+  $("#leave-room").textContent =
+    state.local || state.computer ? "Ander spel kiezen" : "Verlaat kamer";
   $("#room-code").textContent = state.code;
   $("#round-label").textContent = `RONDE ${state.round}`;
   $("#moves-label").textContent = `${state.moves} ZETTEN`;
@@ -64,31 +71,39 @@ function render() {
       : "Gebruik de muis of Tab en de pijltjestoetsen. Bevestig een zet met Enter of spatie.";
   for (let seat = 1; seat <= 2; seat++) {
     const player = $(`#player-${seat}`);
+    player.querySelector(".player-name").textContent = state.computer
+      ? seat === 1
+        ? "Jij"
+        : "Computer"
+      : `Speler ${seat}`;
     player.querySelector(".you-label").textContent =
-      !state.local && state.you === seat ? "(jij)" : "";
-    player.querySelector(".presence").textContent = state.local
-      ? state.kind === "tictactoe"
-        ? seat === 1
-          ? "Kruisjes · X"
-          : "Rondjes · O"
-        : state.kind === "gomoku"
+      !state.local && !state.computer && state.you === seat ? "(jij)" : "";
+    player.querySelector(".presence").textContent =
+      state.local || state.computer
+        ? state.kind === "tictactoe"
           ? seat === 1
-            ? "Zwarte stenen"
-            : "Witte stenen"
-          : `Stenen met nummer ${seat}`
-      : state.players < seat
-        ? "Wacht op een speler"
-        : state.closed
-          ? "Kamer gesloten"
-          : state.connected[seat - 1]
-            ? "Verbonden"
-            : "Niet verbonden";
+            ? "Kruisjes · X"
+            : "Rondjes · O"
+          : state.kind === "gomoku"
+            ? seat === 1
+              ? "Zwarte stenen"
+              : "Witte stenen"
+            : `Stenen met nummer ${seat}`
+        : state.players < seat
+          ? "Wacht op een speler"
+          : state.closed
+            ? "Kamer gesloten"
+            : state.connected[seat - 1]
+              ? "Verbonden"
+              : "Niet verbonden";
     player.querySelector(".turn-label").textContent =
       state.winner === null &&
       state.turn === seat &&
       state.players === 2 &&
       !state.closed
-        ? "Aan zet"
+        ? state.computer && seat === 2 && state.thinking
+          ? "Denkt na…"
+          : "Aan zet"
         : "";
     player.classList.toggle(
       "active",
@@ -108,7 +123,11 @@ function render() {
       ? `Speler ${state.winner} heeft gewonnen!`
       : state.winner === state.you
         ? "Jij hebt gewonnen!"
-        : "Je tegenstander heeft gewonnen!";
+        : state.computer
+          ? "De computer heeft gewonnen!"
+          : "Je tegenstander heeft gewonnen!";
+  else if (state.computer_error) message = state.computer_error;
+  else if (state.thinking) message = "De computer denkt na…";
   else if (!state.connected.every(Boolean))
     message = "Spel gepauzeerd. Wachten op je tegenstander…";
   else
@@ -121,9 +140,13 @@ function render() {
   $("#connection-status").textContent = state.closed
     ? "Kamer gesloten"
     : connected
-      ? "Live verbonden"
+      ? state.computer
+        ? "Tegen de computer · lokaal"
+        : "Live verbonden"
       : "Verbinding verbroken · opnieuw verbinden…";
   $("#rematch").hidden = state.winner === null || state.closed;
+  $("#retry-computer").hidden = !state.computer_error || state.closed;
+  $("#retry-computer").disabled = pending || !connected;
   $("#rematch").disabled =
     pending ||
     !connected ||
@@ -236,6 +259,18 @@ $("#play-local").addEventListener("click", async () => {
   }
 });
 
+$("#play-computer").addEventListener("click", async () => {
+  if (lobbyPending) return;
+  lockLobby(true);
+  try {
+    await openRoom(await request("/api/rooms", { kind, mode: "computer" }));
+  } catch (error) {
+    feedback(error.message);
+  } finally {
+    lockLobby(false);
+  }
+});
+
 $("#join-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   if (lobbyPending) return;
@@ -275,6 +310,9 @@ $("#leave-room").addEventListener("click", async () => {
 
 $("#rematch").addEventListener("click", () =>
   action("rematch", { round: state.round }),
+);
+$("#retry-computer").addEventListener("click", () =>
+  action("retry", { round: state.round }),
 );
 $("#copy-code").addEventListener("click", async () => {
   try {

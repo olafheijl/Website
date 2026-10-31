@@ -162,17 +162,13 @@ test("local and realtime multiplayer", { timeout: 120000 }, async (t) => {
             path: `/tmp/olaf-${kind}-mobile.png`,
             fullPage: true,
           });
-          await page
-            .locator("#rematch")
-            .evaluate((button) =>
-              window.scrollTo({
-                top:
-                  scrollY +
-                  button.getBoundingClientRect().top -
-                  innerHeight / 2,
-                behavior: "instant",
-              }),
-            );
+          await page.locator("#rematch").evaluate((button) =>
+            window.scrollTo({
+              top:
+                scrollY + button.getBoundingClientRect().top - innerHeight / 2,
+              behavior: "instant",
+            }),
+          );
           const beforeRematch = await page.evaluate(() => scrollY);
           await page
             .getByRole("button", { name: "Opnieuw spelen", exact: true })
@@ -508,6 +504,168 @@ test("local and realtime multiplayer", { timeout: 120000 }, async (t) => {
       }
     },
   );
+
+  for (const kind of Object.keys(games)) {
+    await t.test(
+      `${games[kind].name}: computer replies, restores and keeps the view stable`,
+      async () => {
+        const page = await player();
+        try {
+          await page.goto(`${base}/pages/multiplayer.html?game=${kind}`);
+          await page
+            .getByRole("button", { name: "Tegen de computer", exact: true })
+            .click();
+          await page.waitForFunction(
+            () =>
+              document.querySelector("#match-status").textContent ===
+              "Jij bent aan zet.",
+          );
+          assert.equal(
+            await page.locator("#player-2 .player-name").textContent(),
+            "Computer",
+          );
+          assert.equal(await page.locator("#room-card").isVisible(), false);
+          const first =
+            kind === "connect4"
+              ? page.locator('#column-controls button[data-col="3"]')
+              : page.locator(
+                  `#board button[data-index="${kind === "gomoku" ? 112 : 4}"]`,
+                );
+          await first.evaluate((element) =>
+            window.scrollTo({
+              top:
+                scrollY + element.getBoundingClientRect().top - innerHeight / 2,
+              behavior: "instant",
+            }),
+          );
+          const before = await page.evaluate(() => scrollY);
+          const response = page.waitForResponse(
+            (response) =>
+              response.url().endsWith("/move") &&
+              response.request().method() === "POST",
+          );
+          await first.click();
+          const humanMove = await (await response).json();
+          assert.equal(humanMove.thinking, true);
+          assert.equal(humanMove.moves, 1);
+          assert.equal(humanMove.you, 1);
+          await waitMoves(page, 2);
+          await page.waitForFunction(
+            () =>
+              document.querySelector("#match-status").textContent ===
+              "Jij bent aan zet.",
+          );
+          assert.ok(
+            Math.abs((await page.evaluate(() => scrollY)) - before) <= 2,
+            "A computer reply preserves scrolling",
+          );
+          assert.equal(
+            await page.locator('#board [data-player="1"]').count(),
+            1,
+          );
+          assert.equal(
+            await page.locator('#board [data-player="2"]').count(),
+            1,
+          );
+          if (kind === "connect4")
+            await page
+              .locator("#column-controls button:not(:disabled)")
+              .first()
+              .click();
+          else
+            await page
+              .locator('#board button[data-player="0"][aria-disabled="false"]')
+              .first()
+              .click();
+          await waitMoves(page, 4);
+          await page.reload();
+          await page.waitForFunction(
+            () =>
+              document.querySelector("#match-status").textContent ===
+              "Jij bent aan zet.",
+          );
+          await waitMoves(page, 4);
+          assert.equal(
+            await page.locator("#player-2 .player-name").textContent(),
+            "Computer",
+          );
+          await page.setViewportSize({ width: 375, height: 812 });
+          assert.ok(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+          );
+          await page.screenshot({
+            path: `/tmp/olaf-computer-${kind}.png`,
+            fullPage: true,
+          });
+          if (kind === "tictactoe") {
+            for (
+              let turn = 0;
+              turn < 5 && !(await page.locator("#rematch").isVisible());
+              turn++
+            ) {
+              const moves = Number(
+                (await page.locator("#moves-label").textContent()).split(
+                  " ",
+                )[0],
+              );
+              await page
+                .locator(
+                  '#board button[data-player="0"][aria-disabled="false"]',
+                )
+                .first()
+                .click();
+              await page.waitForFunction((moves) => {
+                const count = Number(
+                  document
+                    .querySelector("#moves-label")
+                    .textContent.split(" ")[0],
+                );
+                return (
+                  count > moves &&
+                  (!document.querySelector("#rematch").hidden ||
+                    document.querySelector("#match-status").textContent ===
+                      "Jij bent aan zet.")
+                );
+              }, moves);
+            }
+            assert.match(
+              await page.locator("#match-status").textContent(),
+              /Gelijkspel|De computer heeft gewonnen/,
+            );
+            await page
+              .getByRole("button", { name: "Opnieuw spelen", exact: true })
+              .click();
+            await waitMoves(page, 1);
+            await page.waitForFunction(
+              () =>
+                document.querySelector("#match-status").textContent ===
+                "Jij bent aan zet.",
+            );
+            assert.equal(
+              await page.locator("#round-label").textContent(),
+              "RONDE 2",
+            );
+            assert.equal(
+              await page.locator('#board [data-player="1"]').count(),
+              0,
+            );
+            assert.equal(
+              await page.locator('#board [data-player="2"]').count(),
+              1,
+            );
+          }
+          await page
+            .getByRole("button", { name: "Ander spel kiezen", exact: true })
+            .click();
+          await page.locator("#lobby").waitFor({ state: "visible" });
+        } finally {
+          await page.context().close();
+        }
+      },
+    );
+  }
 
   await t.test("draw, keyboard moves and occupied cells", async () => {
     const page = await player();

@@ -4,9 +4,9 @@ Deze lijst onderscheidt wat al werkt van mogelijke vervolgstappen.
 
 ## Bordspellen: gerealiseerd
 
-Boter, kaas en eieren, 4 op een rij en Gomoku werken met twee mensen op één scherm en met twee browsers via een kamercode. De Python-server controleert de spelregels en deelt de spelstatus realtime via SSE. Alles blijft op localhost.
+Boter, kaas en eieren, 4 op een rij en Gomoku werken met twee mensen op één scherm, met twee browsers via een kamercode en tegen een computertegenstander. De Python-server controleert de spelregels, berekent computerzetten en deelt de spelstatus realtime via SSE. Alles blijft op localhost.
 
-Een volgende stap is spelen tegen de computer. Die tegenstanders zijn nog niet gebouwd. Samen spelen vanaf verschillende computers of via internet is ook nog niet ingesteld.
+De computer gebruikt minimax of begrensd alpha-beta zoeken, met winst- en dreigingsherkenning. Samen spelen vanaf verschillende computers of via internet is nog niet ingesteld.
 
 ## Algorithm Visualizer
 

@@ -1,10 +1,13 @@
 """Two-seat rooms with private player tokens and synchronized updates."""
 
+import copy
+import logging
 import secrets
 import time
 from dataclasses import dataclass, field
-from threading import Condition
+from threading import Condition, Thread
 
+from .computer import choose_move
 from .games import Game, GameError
 
 
@@ -20,6 +23,9 @@ class Room:
     closed: bool = False
     updated: float = field(default_factory=time.monotonic)
     local: bool = False
+    computer: bool = False
+    thinking: bool = False
+    computer_error: str = None
 
 
 class RoomStore:
@@ -42,7 +48,7 @@ class RoomStore:
 
     def create(self, kind, mode="live"):
         game = Game(kind)
-        if mode not in ("live", "local"):
+        if mode not in ("live", "local", "computer"):
             raise GameError("Kies een geldige speelwijze.")
         with self.changed:
             now = time.monotonic()
@@ -54,7 +60,7 @@ class RoomStore:
             while code in self.rooms:
                 code = "".join(secrets.choice(alphabet) for _ in range(6))
             token = secrets.token_urlsafe(24)
-            room = Room(code, game, players=[token], local=mode == "local")
+            room = Room(code, game, players=[token], local=mode == "local", computer=mode == "computer")
             self.rooms[code] = room
             return {"code": code, "token": token}
 
@@ -70,6 +76,8 @@ class RoomStore:
                 raise GameError("Deze kamer is gesloten.", 409)
             if room.local:
                 raise GameError("Dit spel wordt op één scherm gespeeld.", 409)
+            if room.computer:
+                raise GameError("Dit spel is tegen de computer.", 409)
             if len(room.players) >= 2:
                 raise GameError("Deze kamer heeft al twee spelers.", 409)
             token = secrets.token_urlsafe(24)
@@ -83,8 +91,12 @@ class RoomStore:
             return {
                 "code": room.code, "you": room.game.turn if room.local else room.players.index(token) + 1,
                 "local": room.local,
-                "players": 2 if room.local else len(room.players),
-                "connected": [bool(room.connections)] * 2 if room.local else [t in room.connections for t in room.players],
+                "computer": room.computer, "thinking": room.thinking,
+                "computer_error": room.computer_error,
+                "players": 2 if room.local or room.computer else len(room.players),
+                "connected": ([bool(room.connections), True] if room.computer else
+                              [bool(room.connections)] * 2 if room.local else
+                              [t in room.connections for t in room.players]),
                 "revision": room.revision, "round": room.round,
                 "closed": room.closed, "rematch": sorted(room.rematch),
                 **room.game.snapshot(),
@@ -113,8 +125,15 @@ class RoomStore:
                 raise GameError("De kamer is gesloten. Maak een nieuwe kamer.", 409)
             if action == "leave":
                 room.closed = True
+                room.thinking = False
+            elif action == "retry":
+                if not room.computer or not room.computer_error or room.thinking:
+                    raise GameError("Er is geen computerzet om opnieuw te proberen.", 409)
+                if data.get("round") != room.round:
+                    raise GameError("De ronde is veranderd.", 409)
+                self._start_computer(room)
             elif action in ("move", "rematch"):
-                if not room.local and (len(room.players) != 2 or len(room.connections) != 2):
+                if not room.local and not room.computer and (len(room.players) != 2 or len(room.connections) != 2):
                     raise GameError("Wacht tot beide spelers verbonden zijn.", 409)
                 if type(data.get("round")) is not int or data["round"] != room.round:
                     raise GameError("De ronde is veranderd. Probeer opnieuw.", 409)
@@ -126,11 +145,42 @@ class RoomStore:
                     if room.game.winner is None:
                         raise GameError("Maak eerst deze ronde af.", 409)
                     room.rematch.add(player)
-                    if room.local or len(room.rematch) == 2:
+                    if room.local or room.computer or len(room.rematch) == 2:
                         room.round += 1
                         room.game = Game(room.game.kind, starter=1 if room.round % 2 else 2)
                         room.rematch.clear()
+                self._start_computer(room)
             else:
                 raise GameError("Onbekende actie.", 404)
             self._notify(room)
             return self.state(code, token)
+
+    def _start_computer(self, room):
+        """Called under the condition; the actual search runs without the lock."""
+        if not room.computer or room.closed or room.thinking or room.game.winner is not None or room.game.turn != 2:
+            return
+        room.thinking = True
+        room.computer_error = None
+        position = copy.deepcopy(room.game)
+        round_number, moves = room.round, room.game.moves
+
+        def work():
+            try:
+                move = choose_move(position)
+                error = None
+            except Exception:
+                logging.exception("Computer search failed")
+                move, error = None, "De computer kon geen zet berekenen. Probeer de computerzet opnieuw."
+            with self.changed:
+                if self.rooms.get(room.code) is not room or room.closed or room.round != round_number or room.game.moves != moves:
+                    return
+                try:
+                    if error or move is None:
+                        raise GameError(error or "Er kon geen computerzet worden gevonden.")
+                    room.game.move(2, *move)
+                except (GameError, TypeError, ValueError):
+                    room.computer_error = error or "De computerzet is niet gelukt. Probeer opnieuw."
+                room.thinking = False
+                self._notify(room)
+
+        Thread(target=work, daemon=True, name="board-computer").start()

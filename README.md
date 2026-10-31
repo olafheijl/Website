@@ -1,6 +1,6 @@
 # Olaf — Portfolio & speelveld
 
-Een Nederlandstalig portfolio met Memory, een reactietest en drie spellen voor twee mensen: Boter, kaas en eieren, 4 op een rij en Gomoku. We ontwikkelen op **`dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
+Een Nederlandstalig portfolio met Memory, een reactietest en drie bordspellen: Boter, kaas en eieren, 4 op een rij en Gomoku. Speel samen of tegen de computer. We ontwikkelen op **`dev`**. `main` blijft de stabiele versie; wijzigingen gaan daar pas na review naartoe.
 
 ## Projectstructuur
 
@@ -19,7 +19,7 @@ Website/
 │       │   ├── games/            # Memory en reactietest
 │       │   └── multiplayer/      # Lobby, verbinding en interactieve borden
 │       └── images/               # Afbeeldingen en favicon
-├── server/                       # Lokale spelregels, kamers en HTTP/SSE-server
+├── server/                       # Spelregels, computerzoekalgoritmen, kamers en HTTP/SSE
 ├── tests/
 │   ├── browser/                  # Functionele browsertests
 │   └── server/                   # Spelregels en kamers testen
@@ -78,6 +78,16 @@ Open het **Speelveld** en kies een van de nieuwe spellen, of ga direct naar **ht
 
 **Op één scherm (standaard):** kies een spel en klik op **Speel op één scherm**. Twee mensen plaatsen om de beurt een steen in dezelfde browser. De interface toont welke speler aan zet is. Na afloop kun je direct opnieuw spelen; de andere speler begint de volgende ronde.
 
+**Tegen de computer:** kies een spel en klik op **Tegen de computer**. Jij bent speler 1, de computer is speler 2. De computer antwoordt automatisch. Tijdens **De computer denkt na…** kun je geen zet plaatsen, maar wel het spel verlaten. Na afloop start je direct een nieuwe ronde; wie begint wisselt per ronde. Herladen bewaart je bord en speelwijze zolang de server blijft draaien.
+
+De computer kiest met spelalgoritmen in plaats van willekeurige zetten:
+
+- **Boter, kaas en eieren:** rekent de volledige spelboom door en speelt optimaal; tegen deze computer kun je hooguit gelijkspelen.
+- **4 op een rij:** kijkt meerdere zetten vooruit, kiest directe winst, blokkeert dreigingen en probeert sterke vervolgzetten op te bouwen.
+- **Gomoku:** beoordeelt aanval en verdediging rond bestaande stenen, kijkt vooruit en zoekt onder meer naar dubbele dreigingen.
+
+Voor de grotere borden is de zoektijd begrensd om de bediening vlot te houden. Deze tegenstanders zijn daarom niet onverslaanbaar. Alles wordt lokaal berekend; er zijn geen modeldownloads, AI-diensten of API-sleutels nodig.
+
 **Met twee tabbladen of browsers:** open de optie voor een kamercode. Speler 1 maakt een kamer, speler 2 opent de multiplayerpagina in een ander tabblad of een andere browser op dezelfde computer en sluit aan met de code. Gebruik in beide browsers hetzelfde adres en dezelfde poort. Een kamer heeft precies twee plaatsen. Zetten verschijnen live op beide borden. Bij opnieuw spelen moeten beide spelers instemmen.
 
 Spelregels:
@@ -86,7 +96,7 @@ Spelregels:
 - **4 op een rij:** 6 × 7, stenen vallen naar het laagste vrije vak in een kolom. Vier op een rij wint.
 - **Gomoku:** plaats zwarte en witte stenen op de 15 × 15 kruispunten van het houten bord (14 × 14 vierkantjes). Coördinaten A–O en 15–1 helpen bij het aanwijzen van zetten. Een ringetje markeert de laatste zet; de winnende rij krijgt een goudkleurige rand. Vijf of meer op een rij wint (vrije variant, geen Renju-beperkingen). Veeg op kleine schermen horizontaal over het bord om de andere kolommen te zien.
 
-Horizontaal, verticaal en diagonaal tellen. Een vol bord zonder winnaar is gelijkspel. Je kunt de borden bedienen met muis of toetsenbord: Tab, pijltjestoetsen en Enter/spatie. Voor 4 op een rij kies je een kolom met de knoppen boven het bord. Er is nog geen computertegenstander.
+Horizontaal, verticaal en diagonaal tellen. Een vol bord zonder winnaar is gelijkspel. Je kunt de borden bedienen met muis of toetsenbord: Tab, pijltjestoetsen en Enter/spatie. Voor 4 op een rij kies je een kolom met de knoppen boven het bord.
 
 Herladen van hetzelfde tabblad behoudt je plek en bord zolang de server draait. Bij een verbroken liveverbinding pauzeert het spel; de browser probeert opnieuw te verbinden. Expliciet verlaten sluit de kamer voor beide spelers. Kamers vervallen na twee uur zonder spel- of verbindingsactiviteit en verdwijnen bij een serverherstart.
 
@@ -107,10 +117,10 @@ python3 -m unittest discover -s tests/server -v
 node --test tests/browser/website.test.cjs tests/browser/multiplayer.test.cjs
 ```
 
-Op Windows gebruik je `python` in plaats van `python3` voor de servertests. De tests controleren spelregels, gelijktijdige zetten, kamers en herstarten van rondes. Browsertests starten zelf `start.py` op een tijdelijke poort en controleren zowel de bestaande spellen als complete partijen van de drie nieuwe spellen op één scherm en met twee onafhankelijke browsersessies. Ook herladen, opnieuw spelen, mobiele weergave, afscherming van ontwikkelbestanden, ongeldige aanvragen en verbindingsverlies worden gecontroleerd. Buiten deze omgeving zijn Node.js, `playwright` en Chromium nodig; stel zo nodig `CHROMIUM_PATH` in op het browserpad. Deze hulpmiddelen zijn alleen nodig voor de tests, niet om de website te gebruiken.
+Op Windows gebruik je `python` in plaats van `python3` voor de servertests. De tests controleren spelregels, gelijktijdige zetten, kamers en herstarten van rondes. De computer wordt getest op winst, blokkeren, vooruitkijken, dubbele dreigingen en zoeklimieten. Voor Boter, kaas en eieren worden alle mogelijke menselijke vervolgzetten tegen de computer doorgelopen. De browser controleert ook automatische computerantwoorden, herladen en een nieuwe ronde met de computer als starter. Browsertests starten zelf `start.py` op een tijdelijke poort en controleren zowel de bestaande spellen als complete partijen van de drie nieuwe spellen op één scherm en met twee onafhankelijke browsersessies. Ook herladen, opnieuw spelen, mobiele weergave, afscherming van ontwikkelbestanden, ongeldige aanvragen en verbindingsverlies worden gecontroleerd. Buiten deze omgeving zijn Node.js, `playwright` en Chromium nodig; stel zo nodig `CHROMIUM_PATH` in op het browserpad. Deze hulpmiddelen zijn alleen nodig voor de tests, niet om de website te gebruiken.
 
 ## Verder bouwen
 
-Elke pagina krijgt een eigen stylesheet en elke toepassing een eigen JavaScript-modulemap. De drie bordspellen delen een lobby en bordweergave; hun spelregels staan in `server/games.py`. De plannen voor computertegenstanders, een A*-visualizer en computer vision staan in `docs/roadmap.md`; ze zijn nog niet gebouwd.
+Elke pagina krijgt een eigen stylesheet en elke toepassing een eigen JavaScript-modulemap. De drie bordspellen delen een lobby en bordweergave; hun spelregels staan in `server/games.py` en de computerzoekalgoritmen in `server/computer.py`. Plannen voor een A*-visualizer en computer vision staan in `docs/roadmap.md`; die toepassingen zijn nog niet gebouwd.
 
 Werk op `dev` en push met `git push origin dev`. Samenvoegen naar `main` gebeurt later via een pull request, na review. Een push naar `dev` publiceert de website niet.

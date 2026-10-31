@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Speel Boter, kaas en eieren, 4 op een rij en Gomoku realtime met twee spelers op je lokale server."
+      content="Speel Boter, kaas en eieren, 4 op een rij en Gomoku met elkaar of tegen de computer, op je lokale server."
     />
     <title>Samen spelen — Olaf</title>
     <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml" />
@@ -37,8 +37,8 @@
           beurt op één scherm of verbind twee browsers met een kamercode.
         </p>
         <p class="local-note">
-          Voor twee mensen, zonder computertegenstander. Alles draait op je
-          eigen computer.
+          Speel met elkaar of daag de computer uit. Alles draait lokaal op je
+          eigen computer, zonder accounts of externe diensten.
         </p>
       </section>
       <p id="feedback" class="feedback" role="alert" hidden></p>
@@ -96,6 +96,16 @@
           </div>
           <button id="play-local" class="button button-dark" type="button">
             Speel op één scherm
+          </button>
+        </div>
+        <div class="computer-start">
+          <div>
+            <p class="eyebrow">LIEVER EEN DIGITALE TEGENSTANDER?</p>
+            <h3>Daag de computer uit.</h3>
+            <p>Hij kijkt vooruit, blokkeert dreigingen en zoekt naar winst.</p>
+          </div>
+          <button id="play-computer" class="button button-dark" type="button">
+            Tegen de computer
           </button>
         </div>
         <details class="live-options">
@@ -171,7 +181,9 @@
               <div id="player-1" class="player p1">
                 <span class="player-mark" aria-hidden="true">1</span>
                 <div>
-                  <strong>Speler 1 <span class="you-label"></span></strong
+                  <strong
+                    ><span class="player-name">Speler 1</span>
+                    <span class="you-label"></span></strong
                   ><small class="presence"></small>
                 </div>
                 <span class="turn-label"></span>
@@ -179,7 +191,9 @@
               <div id="player-2" class="player p2">
                 <span class="player-mark" aria-hidden="true">2</span>
                 <div>
-                  <strong>Speler 2 <span class="you-label"></span></strong
+                  <strong
+                    ><span class="player-name">Speler 2</span>
+                    <span class="you-label"></span></strong
                   ><small class="presence"></small>
                 </div>
                 <span class="turn-label"></span>
@@ -230,6 +244,14 @@
               Enter of spatie.
             </p>
             <div class="round-actions">
+              <button
+                id="retry-computer"
+                class="button button-outline"
+                type="button"
+                hidden
+              >
+                Computerzet opnieuw proberen
+              </button>
               <button
                 id="rematch"
                 class="button button-dark"

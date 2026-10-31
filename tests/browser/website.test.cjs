@@ -229,7 +229,22 @@ test("portfolio and games work in a real browser", async (t) => {
           }),
         );
         const before = await page.evaluate(() => scrollY);
-        await locator.click();
+        // The control is already visible. Use a native pointer click so the test
+        // measures the app, without locator.click() implicitly scrolling first.
+        const box = await locator.boundingBox();
+        assert.ok(box && box.y >= 0 && box.y + box.height <= 812);
+        assert.ok(
+          await locator.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            return element.contains(
+              document.elementFromPoint(
+                rect.x + rect.width / 2,
+                rect.y + rect.height / 2,
+              ),
+            );
+          }),
+        );
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
         await page.waitForTimeout(100);
         const after = await page.evaluate(() => scrollY);
         assert.ok(
