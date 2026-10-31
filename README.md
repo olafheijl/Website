@@ -2,23 +2,35 @@
 
 Een Nederlandstalig portfolio (`index.html`) en twee browsergames (`games.html`): Memory en een reactietest met een lokaal bewaard persoonlijk record.
 
-## Starten
+## Op je eigen computer starten
 
-Geen dependencies, API-sleutels of buildstap nodig. Vanuit `/workspace/Website`:
+Deze versie draait lokaal. Python 3 is nodig; er zijn geen extra packages, API-sleutels of buildstappen nodig.
 
-```sh
-python3 -m http.server 8000 --bind 0.0.0.0
-```
+1. Download de repository via **Code → Download ZIP** en pak het ZIP-bestand uit. Of gebruik `git clone https://github.com/olafheijl/Website.git`. Heb je al een lokale checkout? Werk die bij met `git pull`.
+2. Open een terminal in de map met `start.py`.
+3. Start de server:
 
-Open de site via je ontwikkelomgeving op poort 8000. Op je eigen computer kun je `http://localhost:8000` gebruiken. Stop de server met Ctrl+C.
+   **Windows:**
+   ```sh
+   py start.py
+   ```
+
+   **macOS / Linux:**
+   ```sh
+   python3 start.py
+   ```
+
+4. Open **http://localhost:8000** in de browser op dezelfde computer. Houd de terminal open. Stop de server met Ctrl+C.
+
+De server luistert uitsluitend op `127.0.0.1`, dus niet op het lokale netwerk. Als poort 8000 bezet is, voeg dan `--port 8001` toe en open `http://localhost:8001`.
+
+Wanneer je de server in de cloudomgeving start, draait hij op de cloudcomputer. Dat maakt hem niet bereikbaar via localhost op je eigen computer.
 
 Lettertypen, stijlen en spelcode worden lokaal geladen. Alleen de beste reactietijd wordt in `localStorage` opgeslagen. Er is geen backend, tracking of gebruikersaccount.
 
-## Online via GitHub Pages
+## GitHub is alleen de opslagplek
 
-De site kan direct vanuit deze repository worden gepubliceerd. Open op GitHub **Settings → Pages**, kies **Deploy from a branch**, selecteer **main** en **/ (root)** en klik op **Save**. Het bestand `.nojekyll` zorgt dat GitHub de statische bestanden zonder Jekyll verwerkt.
-
-Na een geslaagde publicatie staat de site op `https://olafheijl.github.io/Website/`. Latere wijzigingen op `main` worden automatisch gepubliceerd.
+Voor lokaal draaien zijn GitHub Pages en toegang tot de GitHub-API niet nodig. Er wordt geen hosting of betaalde dienst ingesteld door deze code. Heb je Pages zelf al aangezet? Schakel die dan uit via **Settings → Pages → Unpublish site**. Deze repositorywijziging wijzigt geen instellingen op GitHub.
 
 ## Browsercontroles
 

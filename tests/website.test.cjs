@@ -5,7 +5,7 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 
 test('portfolio and games work in a real browser', async (t) => {
-  const server = spawn('python3', ['-m', 'http.server', '0', '--bind', '127.0.0.1'], {
+  const server = spawn('python3', ['start.py', '--port', '0'], {
     cwd: path.resolve(__dirname, '..'), env: { ...process.env, PYTHONUNBUFFERED: '1' },
   });
   t.after(() => server.kill());
