@@ -13,7 +13,7 @@ def main():
     if not 0 <= args.port <= 65535:
         parser.error("De poort moet tussen 0 en 65535 liggen.")
 
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent / "public"
     handler = partial(SimpleHTTPRequestHandler, directory=str(root))
     try:
         server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
