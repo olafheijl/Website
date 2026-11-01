@@ -551,3 +551,18 @@
   width: 24px;
   height: 24px;
 }
+
+.path-visual {
+  background:#e9eddf
+}
+.path-preview {
+  font:28px/1.6 monospace;
+  letter-spacing:8px;
+  color:var(--green);
+  transform:rotate(-7deg);
+  background:#f7f7f0;
+  padding:15px 26px;
+  border:1px solid #cbd4c1;
+  border-radius:12px;
+  box-shadow:5px 7px 0 #c8d5b5
+}

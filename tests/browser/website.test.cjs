@@ -74,7 +74,7 @@ test("portfolio and games work in a real browser", async (t) => {
   await t.test("portfolio, navigation and responsive layout", async () => {
     await page.goto(`http://127.0.0.1:${port}/`);
     assert.match(await page.title(), /Portfolio/);
-    assert.equal(await page.locator(".project-card").count(), 2);
+    assert.equal(await page.locator(".project-card").count(), 3);
     await page.screenshot({
       path: "/tmp/olaf-portfolio-desktop.png",
       fullPage: true,

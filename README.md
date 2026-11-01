@@ -124,3 +124,9 @@ Op Windows gebruik je `python` in plaats van `python3` voor de servertests. De t
 Elke pagina krijgt een eigen stylesheet en elke toepassing een eigen JavaScript-modulemap. De drie bordspellen delen een lobby en bordweergave; hun spelregels staan in `server/games.py` en de computerzoekalgoritmen in `server/computer.py`. Plannen voor een A*-visualizer en computer vision staan in `docs/roadmap.md`; die toepassingen zijn nog niet gebouwd.
 
 Werk op `dev` en push met `git push origin dev`. Samenvoegen naar `main` gebeurt later via een pull request, na review. Een push naar `dev` publiceert de website niet.
+
+## Padvinder
+
+Via de navigatie en de projectkaart is `public/pages/pathfinding.html` bereikbaar. Plaats start- en eindpunten, teken obstakels en vergelijk BFS en DFS op hetzelfde raster. Beide zoeken in vier richtingen met gelijke stapkosten. De animatie toont bezochte vakken en het pad, met padlengte en bezoekaantal. Bewerken of wissen stopt de animatie. Met Tab selecteer je een raster, met pijltjestoetsen navigeer je en Enter/spatie past een vak aan.
+
+Browsercontrole: `node --test tests/browser/pathfinding.test.cjs`.
