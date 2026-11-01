@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 test('BFS and DFS compare editable grids in the browser', async t => {
- const server = spawn('python3', ['start.py', '--port', '0'], { cwd: path.resolve(__dirname, '../..'), env: {...process.env, PYTHONUNBUFFERED:'1'} });
+ const server = spawn('python3', ['start.py', '--lan', '--port', '0'], { cwd: path.resolve(__dirname, '../..'), env: {...process.env, PYTHONUNBUFFERED:'1'} });
  t.after(()=>server.kill());
  const port = await new Promise((resolve,reject)=>{ server.once('error',reject); server.once('exit',code=>reject(new Error(`Server exited: ${code}`))); server.stdout.on('data',data=>{ const match=String(data).match(/port (\d+)/); if(match)resolve(match[1]); }); });
  const browser = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', args:['--no-sandbox'], headless:true});

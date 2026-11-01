@@ -66,11 +66,22 @@ Deze versie draait lokaal. Python 3 is nodig; er zijn geen extra packages, API-s
 
 Als Windows alleen het commando `py` herkent, gebruik je `py start.py`. Start altijd via deze server: de spelcode gebruikt JavaScript-modules, die niet werken door de HTML rechtstreeks vanaf schijf te openen.
 
-De server luistert uitsluitend op `127.0.0.1`, dus niet op het lokale netwerk. Als poort 8000 bezet is, voeg dan `--port 8001` toe en open `http://localhost:8001`.
+Standaard luistert de server uitsluitend op `127.0.0.1`. Met `--lan` kun je de website ook op je telefoon bekijken (zie hieronder). Als poort 8000 bezet is, voeg dan `--port 8001` toe en open `http://localhost:8001`.
 
 Wanneer je de server in de cloudomgeving start, draait hij op de cloudcomputer. Dat maakt hem niet bereikbaar via localhost op je eigen computer.
 
 Lettertypen, stijlen en spelcode worden lokaal geladen. De beste reactietijd staat in `localStorage`. Het tabblad bewaart de toegang tot een spel in `sessionStorage`; borden en kamers staan alleen in het geheugen van de Python-server. Er zijn geen accounts, database, tracking of externe diensten.
+
+## Bekijken op je telefoon
+
+1. Verbind je computer en telefoon met hetzelfde wifi-netwerk.
+2. Stop een draaiende server met Ctrl+C en start op je eigen computer met **`python start.py --lan`** (Windows) of **`python3 start.py --lan`** (macOS/Linux). Werkt alleen `py`? Gebruik `py start.py --lan`.
+3. Zoek het lokale IPv4-adres van je computer: op Windows met `ipconfig` bij de actieve wifi- of ethernetverbinding; op macOS via Systeeminstellingen → Netwerk → Wifi → Details → TCP/IP.
+4. Open op je telefoon bijvoorbeeld **`http://192.168.1.20:8000`**, met jouw eigen IP-adres. Gebruik `http://`, niet `https://`.
+
+Met `--port 8001` kun je een andere poort kiezen; gebruik die dan ook op je telefoon. Sta bij een firewallmelding toegang toe op je **privénetwerk**. Lukt verbinden niet, controleer dan of je wifi-netwerk verbindingen tussen apparaten toestaat; gastwifi blokkeert dit vaak.
+
+`--lan` laat de server op alle IPv4-netwerkinterfaces van je computer luisteren. Gebruik dit op je eigen vertrouwde netwerk. Er wordt geen hosting of portforwarding ingesteld. Zonder `--lan` blijft toegang beperkt tot de computer zelf. De spellen en kamercodes werken ook via het lokale IP-adres; open op beide apparaten hetzelfde adres om samen te spelen.
 
 ## Met twee spelers spelen
 

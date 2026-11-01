@@ -4,7 +4,7 @@
 
 De website draait uitsluitend lokaal met Python 3 en gewone HTML, CSS en JavaScript. Er is geen framework, buildstap of externe dependency nodig. `server/` bevat een kleine backend voor de drie bordspellen: op één scherm, realtime met twee browsers en tegen de computer.
 
-De browser krijgt alleen bestanden uit `public/`. `start.py`, tests, Git-metadata en documentatie blijven daarbuiten. Start de site vanuit de projectmap met `python start.py` op Windows of `python3 start.py` op macOS/Linux. De server bindt alleen aan `127.0.0.1` en vindt `public/` ook wanneer hij vanuit een andere werkmap wordt aangeroepen.
+De browser krijgt alleen bestanden uit `public/`. `start.py`, tests, Git-metadata en documentatie blijven daarbuiten. Start de site vanuit de projectmap met `python start.py` op Windows of `python3 start.py` op macOS/Linux. De server bindt standaard aan `127.0.0.1`; met `--lan` aan `0.0.0.0` voor toegang vanaf apparaten op hetzelfde lokale netwerk. Hij vindt `public/` ook wanneer hij vanuit een andere werkmap wordt aangeroepen.
 
 ## Waar hoort een wijziging?
 
