@@ -2,7 +2,7 @@
 
 ## Uitgangspunten
 
-De website draait uitsluitend lokaal met Python 3 en gewone HTML, CSS en JavaScript. Er is geen framework, buildstap of externe dependency nodig. `server/` bevat een kleine backend voor de drie bordspellen: op één scherm, realtime met twee browsers en tegen de computer.
+De volledige website draait lokaal met Python 3 en gewone HTML, CSS en JavaScript. Een statische demo op GitHub Pages publiceert alleen `public/`, met een melding bij de bordspellen die de Python-server nodig hebben. Er is geen framework, buildstap of externe dependency nodig. `server/` bevat een kleine backend voor de drie bordspellen: op één scherm, realtime met twee browsers en tegen de computer.
 
 De browser krijgt alleen bestanden uit `public/`. `start.py`, tests, Git-metadata en documentatie blijven daarbuiten. Start de site vanuit de projectmap met `python start.py` op Windows of `python3 start.py` op macOS/Linux. De server bindt standaard aan `127.0.0.1`; met `--lan` aan `0.0.0.0` voor toegang vanaf apparaten op hetzelfde lokale netwerk. Hij vindt `public/` ook wanneer hij vanuit een andere werkmap wordt aangeroepen.
 
@@ -66,3 +66,7 @@ Voeg een link toe aan het portfolio of speelveld en een relevante browsertest. M
 - Gebruik later een pull request van `dev` naar `main` om een versie te reviewen.
 
 Lokaal starten en GitHub gebruiken als broncodeopslag vereisen geen GitHub Pages of GitHub-API-toegang.
+
+## Statische demo
+
+`scripts/build_pages.py` kopieert `public/` naar een nieuwe uitvoermap en markeert de multiplayerpagina met een `static-demo`-meta-element. Die pagina toont dan links naar de browserexperimenten en herstelt geen serversessie. De lokale bronbestanden krijgen deze markering niet. `.github/workflows/pages.yml` bouwt en publiceert na een push naar `dev`, zodra Pages op GitHub Actions is ingesteld. Alle assetlinks zijn relatief, zodat ook de project-URL `/Website/` werkt.

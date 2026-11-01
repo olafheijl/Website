@@ -331,7 +331,30 @@ if (invitation) {
 const selectedGame = new URL(location.href).searchParams.get("game");
 if (["tictactoe", "connect4", "gomoku"].includes(selectedGame))
   $(`[data-kind="${selectedGame}"]`).click();
-const previous = readSession();
+const staticDemo = document.querySelector('meta[name="static-demo"]') !== null;
+if (staticDemo) {
+  $("#lobby").hidden = true;
+  $(".local-note").textContent =
+    "Deze bordspellen hebben de lokale Python-server nodig en zijn in deze online demo niet speelbaar.";
+  const notice = document.createElement("section");
+  notice.className = "feedback";
+  const message = document.createElement("p");
+  message.textContent =
+    "Wel direct uitproberen: Memory, de reactietest en Padvinder.";
+  notice.append(message);
+  for (const [href, text] of [
+    ["games.html", "Speel Memory of de reactietest"],
+    ["pathfinding.html", "Ontdek Padvinder"],
+  ]) {
+    const link = document.createElement("a");
+    link.className = "button button-dark";
+    link.href = href;
+    link.textContent = text;
+    notice.append(link, document.createTextNode(" "));
+  }
+  $("#lobby").before(notice);
+}
+const previous = staticDemo ? null : readSession();
 if (previous && (!invitation || invitation.toUpperCase() === previous.code)) {
   lockLobby(true);
   openRoom(previous)

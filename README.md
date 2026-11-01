@@ -115,9 +115,20 @@ De server blijft uitsluitend bereikbaar op deze computer. Samen spelen vanaf twe
 
 Na een update: stop een nog draaiende server met **Ctrl+C**, haal de nieuwste `dev` op en start `python start.py` opnieuw. Zo wordt ook de nieuwe servercode geladen.
 
-## GitHub is alleen de opslagplek
+## Online demo via GitHub Pages
 
-Voor lokaal draaien zijn GitHub Pages en toegang tot de GitHub-API niet nodig. Er wordt geen hosting of betaalde dienst ingesteld door deze code. Heb je Pages zelf al aangezet? Schakel die dan uit via **Settings → Pages → Unpublish site**. Deze repositorywijziging wijzigt geen instellingen op GitHub.
+De workflow `.github/workflows/pages.yml` publiceert de inhoud van `public/` na elke push naar **dev**. Python-code en ontwikkelbestanden worden niet gepubliceerd. Memory, de reactietest en Padvinder werken volledig in de browser. Bij de drie bordspellen staat een melding dat ze de lokale Python-server nodig hebben; de online demo maakt geen spelaanvragen naar een ontbrekende backend.
+
+Eenmalig instellen op GitHub:
+
+1. Open **Settings → Pages** in de repository.
+2. Kies bij **Build and deployment → Source** voor **GitHub Actions**.
+3. Open **Actions → Publiceer website op GitHub Pages → Run workflow**, kies **dev** en start de workflow.
+4. Open na de geslaagde run de URL bij de deployment, normaal **https://olafheijl.github.io/Website/**.
+
+Als GitHub vraagt welke branches mogen publiceren: open **Settings → Environments → github-pages** en sta **dev** toe bij de deployment branches. De stabiele branch `main` wordt niet aangepast. GitHub Pages is gratis voor publieke repositories op GitHub Free; bij een privérepository hangt beschikbaarheid af van het abonnement.
+
+Controleer de statische build lokaal met `python scripts/build_pages.py` en `python -m http.server 8001 --bind 127.0.0.1 --directory _site`. Verwijder of hernoem een eerdere `_site`-map voordat je opnieuw bouwt; het script overschrijft geen bestaande map. De gewone lokale website blijft starten met `python start.py` of `python start.py --lan`, inclusief alle bordspellen.
 
 ## Browsercontroles
 
