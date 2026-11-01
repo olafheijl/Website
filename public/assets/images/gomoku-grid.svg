@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1400">
+  <title>Gomoku: 15 bij 15 kruispunten en vijf sterpunten</title>
+  <path d="M0 0H1400 M0 0V1400 M0 100H1400 M100 0V1400 M0 200H1400 M200 0V1400 M0 300H1400 M300 0V1400 M0 400H1400 M400 0V1400 M0 500H1400 M500 0V1400 M0 600H1400 M600 0V1400 M0 700H1400 M700 0V1400 M0 800H1400 M800 0V1400 M0 900H1400 M900 0V1400 M0 1000H1400 M1000 0V1400 M0 1100H1400 M1100 0V1400 M0 1200H1400 M1200 0V1400 M0 1300H1400 M1300 0V1400 M0 1400H1400 M1400 0V1400" fill="none" stroke="#80633e" stroke-width="2"/>
+  <g fill="#69502f"><circle cx="300" cy="300" r="8"/><circle cx="1100" cy="300" r="8"/><circle cx="700" cy="700" r="8"/><circle cx="300" cy="1100" r="8"/><circle cx="1100" cy="1100" r="8"/></g>
+</svg>

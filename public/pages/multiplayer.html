@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Speel Boter, kaas en eieren, 4 op een rij en Gomoku met elkaar of tegen de computer, op je lokale server."
+    />
+    <title>Samen spelen — Olaf</title>
+    <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/pages/multiplayer.css" />
+    <script type="module" src="../assets/js/multiplayer/index.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Naar de inhoud</a>
+    <header class="site-header wrap">
+      <a class="brand" href="../index.html" aria-label="Olaf, startpagina"
+        >olaf<span class="brand-dot">.</span></a
+      >
+      <nav aria-label="Hoofdnavigatie">
+        <a href="../index.html">Portfolio</a
+        ><a href="games.html" aria-current="page">Speelveld</a>
+        <a href="pathfinding.html">Padvinder</a>
+      </nav>
+      <a class="header-link" href="games.html">Alle spellen</a>
+    </header>
+    <main id="main" class="wrap multiplayer-main">
+      <section class="multiplayer-intro">
+        <p class="eyebrow">
+          <span class="status-dot" aria-hidden="true"></span> TWEE SPELERS. ÉÉN
+          BORD.
+        </p>
+        <h1>Samen aan <span class="serif-word">zet.</span></h1>
+        <p>
+          Een vriend, een bord en een beetje gezonde rivaliteit. Speel om de
+          beurt op één scherm of verbind twee browsers met een kamercode.
+        </p>
+        <p class="local-note">
+          Speel met elkaar of daag de computer uit. Alles draait lokaal op je
+          eigen computer, zonder accounts of externe diensten.
+        </p>
+      </section>
+      <p id="feedback" class="feedback" role="alert" hidden></p>
+      <noscript><p>Schakel JavaScript in om samen te spelen.</p></noscript>
+      <section id="lobby" aria-labelledby="choose-title">
+        <div class="lobby-heading">
+          <p class="eyebrow">01 / KIES JE UITDAGING</p>
+          <h2 id="choose-title">Klein bord. Grootse plannen.</h2>
+        </div>
+        <div class="game-choices" role="group" aria-label="Kies een spel">
+          <button
+            type="button"
+            class="game-choice"
+            data-kind="tictactoe"
+            aria-pressed="true"
+          >
+            <span class="choice-art ttt-art" aria-hidden="true"
+              >X O<br />O X</span
+            ><span class="choice-meta">3 × 3 · DRIE OP EEN RIJ</span
+            ><strong>Boter, kaas en eieren</strong
+            ><span
+              >De klassieker. Simpel om te leren, lastig om te winnen.</span
+            >
+          </button>
+          <button
+            type="button"
+            class="game-choice"
+            data-kind="connect4"
+            aria-pressed="false"
+          >
+            <span class="choice-art connect-art" aria-hidden="true"
+              >● ● ○<br />● ○ ●</span
+            ><span class="choice-meta">6 × 7 · VIER OP EEN RIJ</span
+            ><strong>4 op een rij</strong
+            ><span>Laat je stenen vallen. Zie jij de volgende zet al?</span>
+          </button>
+          <button
+            type="button"
+            class="game-choice"
+            data-kind="gomoku"
+            aria-pressed="false"
+          >
+            <span class="choice-art gomoku-art" aria-hidden="true"
+              >● ┼ ┼<br />┼ ● ┼</span
+            ><span class="choice-meta">15 × 15 · VIJF OP EEN RIJ</span
+            ><strong>Gomoku</strong
+            ><span>Meer ruimte om vooruit te denken. Elke steen telt.</span>
+          </button>
+        </div>
+        <div class="local-start">
+          <div>
+            <p class="eyebrow">02 / KLAAR OM TE SPELEN?</p>
+            <h3>Schuif gezellig aan.</h3>
+            <p>Wissel elkaar af in dezelfde browser. Speler 1 begint.</p>
+          </div>
+          <button id="play-local" class="button button-dark" type="button">
+            Speel op één scherm
+          </button>
+        </div>
+        <div class="computer-start">
+          <div>
+            <p class="eyebrow">LIEVER EEN DIGITALE TEGENSTANDER?</p>
+            <h3>Daag de computer uit.</h3>
+            <p>Hij kijkt vooruit, blokkeert dreigingen en zoekt naar winst.</p>
+          </div>
+          <button id="play-computer" class="button button-dark" type="button">
+            Tegen de computer
+          </button>
+        </div>
+        <details class="live-options">
+          <summary>
+            Liever ieder een eigen tabblad? Speel met een kamercode.
+          </summary>
+          <div class="lobby-actions">
+            <div>
+              <button
+                id="create-room"
+                class="button button-outline"
+                type="button"
+              >
+                Maak een kamer
+              </button>
+              <p>Jij bent speler 1. Deel de code met speler 2.</p>
+            </div>
+            <form id="join-form">
+              <label for="room-input">Al een code gekregen?</label>
+              <div class="join-row">
+                <input
+                  id="room-input"
+                  name="code"
+                  placeholder="ABC234"
+                  maxlength="6"
+                  minlength="6"
+                  pattern="[A-Za-z2-9]{6}"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  required
+                /><button class="button button-dark" type="submit">
+                  Sluit aan
+                </button>
+              </div>
+            </form>
+          </div>
+          <p class="local-note">
+            Open voor lokaal testen een tweede tabblad of browser op dezelfde
+            computer. De server is niet toegankelijk vanaf andere apparaten.
+          </p>
+        </details>
+      </section>
+      <section id="match" class="match" aria-labelledby="match-title" hidden>
+        <div class="match-heading">
+          <div>
+            <p class="eyebrow">JULLIE EIGEN SPEELTAFEL</p>
+            <h2 id="match-title"></h2>
+            <p id="rules" class="rules"></p>
+          </div>
+          <button id="leave-room" class="button button-outline" type="button">
+            Verlaat kamer
+          </button>
+        </div>
+        <div class="match-layout">
+          <aside class="match-sidebar">
+            <div id="room-card" class="room-card">
+              <span class="eyebrow">KAMERCODE</span
+              ><strong id="room-code"></strong
+              ><button id="copy-code" class="text-link" type="button">
+                Kopieer code
+              </button>
+              <p id="copy-status" role="status"></p>
+            </div>
+            <div id="local-card" class="room-card" hidden>
+              <span class="eyebrow">ÉÉN SCHERM · TWEE SPELERS</span>
+              <p>
+                Speel om de beurt. De speler met het label ‘Aan zet’ mag de
+                volgende steen plaatsen.
+              </p>
+            </div>
+            <div class="players">
+              <div id="player-1" class="player p1">
+                <span class="player-mark" aria-hidden="true">1</span>
+                <div>
+                  <strong
+                    ><span class="player-name">Speler 1</span>
+                    <span class="you-label"></span></strong
+                  ><small class="presence"></small>
+                </div>
+                <span class="turn-label"></span>
+              </div>
+              <div id="player-2" class="player p2">
+                <span class="player-mark" aria-hidden="true">2</span>
+                <div>
+                  <strong
+                    ><span class="player-name">Speler 2</span>
+                    <span class="you-label"></span></strong
+                  ><small class="presence"></small>
+                </div>
+                <span class="turn-label"></span>
+              </div>
+            </div>
+            <p id="connection-status" class="connection-status" role="status">
+              Verbinden…
+            </p>
+            <p class="session-note">
+              Even herladen? Je plek blijft in dit tabblad bewaard. Kamers
+              verdwijnen als de server stopt of na twee uur zonder activiteit.
+            </p>
+          </aside>
+          <div class="board-panel">
+            <div class="round-line">
+              <span id="round-label"></span><span id="moves-label"></span>
+            </div>
+            <h3 id="match-status" role="status" aria-live="polite"></h3>
+            <div class="board-viewport">
+              <div id="column-controls" class="column-controls" hidden></div>
+              <div id="board-surface" class="board-surface">
+                <div
+                  class="board-coordinates coordinates-top"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-left"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  id="board"
+                  class="board"
+                  role="group"
+                  aria-label="Spelbord"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-right"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  class="board-coordinates coordinates-bottom"
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
+            <p class="board-tip">
+              Gebruik de muis of Tab en de pijltjestoetsen. Bevestig een zet met
+              Enter of spatie.
+            </p>
+            <div class="round-actions">
+              <button
+                id="retry-computer"
+                class="button button-outline"
+                type="button"
+                hidden
+              >
+                Computerzet opnieuw proberen
+              </button>
+              <button
+                id="rematch"
+                class="button button-dark"
+                type="button"
+                hidden
+              >
+                Opnieuw spelen
+              </button>
+              <p id="rematch-status" class="rematch-status" role="status"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <a class="brand" href="../index.html"
+        >olaf<span class="brand-dot">.</span></a
+      >
+      <p>Een digitale werkplaats. Altijd in ontwikkeling.</p>
+      <a href="games.html">Terug naar het speelveld</a>
+    </footer>
+  </body>
+</html>

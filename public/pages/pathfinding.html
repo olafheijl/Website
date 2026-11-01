@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Vergelijk BFS en DFS: plaats start, eindpunt en obstakels en bekijk hoe algoritmes een pad vinden.">
+<title>Padvinder — Olaf</title>
+<link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/pages/games.css">
+<link rel="stylesheet" href="../assets/css/pages/pathfinding.css">
+<script type="module" src="../assets/js/pathfinding/index.js">
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Naar de inhoud</a>
+<header class="site-header wrap">
+<a class="brand" href="../index.html">olaf<span class="brand-dot">.</span>
+</a>
+<nav aria-label="Hoofdnavigatie">
+<a href="../index.html">Portfolio</a>
+<a href="games.html">Speelveld</a>
+<a href="pathfinding.html" aria-current="page">Padvinder</a>
+</nav>
+<a class="header-link" href="../index.html#over">Even voorstellen ↗</a>
+</header>
+<main id="main" class="wrap games-main">
+<section class="games-intro">
+<p class="eyebrow">
+<span class="status-dot" aria-hidden="true">
+</span> EXPERIMENT / ALGORITMES IN BEWEGING</p>
+<h1>Elk pad begint met<br>
+<span class="serif-word">een keuze.</span>
+</h1>
+<p>Dezelfde start. Hetzelfde doel. Een andere aanpak. Bouw je eigen speelveld en ontdek het verschil tussen BFS en DFS.</p>
+</section>
+<noscript>
+<p class="notice">Schakel JavaScript in om de padvinder te gebruiken.</p>
+</noscript>
+<section class="path-workspace" aria-label="Vergelijk BFS en DFS">
+<div class="path-toolbar">
+<fieldset id="tools">
+<legend>1. Richt het raster in</legend>
+<label>
+<input type="radio" name="tool" value="wall" checked> Obstakel</label>
+<label>
+<input type="radio" name="tool" value="start"> Startpunt</label>
+<label>
+<input type="radio" name="tool" value="end"> Eindpunt</label>
+<label>
+<input type="radio" name="tool" value="erase"> Gum</label>
+</fieldset>
+<div class="path-actions">
+<label for="speed">Animatie <select id="speed">
+<option value="45">Rustig</option>
+<option value="15" selected>Normaal</option>
+<option value="0">Direct</option>
+</select>
+</label>
+<button class="button button-dark" id="run" type="button">Vergelijk BFS & DFS →</button>
+<button class="button path-secondary" id="clear-results" type="button">Wis zoekresultaat</button>
+<button class="button path-secondary" id="clear-walls" type="button">Wis obstakels</button>
+</div>
+</div>
+<p class="path-instruction" id="instructions">2. Klik op een vak om het aan te passen. Sleep om obstakels te tekenen of te gummen. Met de pijltjestoetsen navigeer je; Enter of spatie past een vak aan. Beide borden veranderen mee.</p>
+<div class="path-legend">
+<span>
+<i class="legend-start">S</i> Start</span>
+<span>
+<i class="legend-end">E</i> Eind</span>
+<span>
+<i class="legend-wall">
+</i> Obstakel</span>
+<span>
+<i class="legend-visited">
+</i> Bezocht</span>
+<span>
+<i class="legend-path">
+</i> Gevonden pad</span>
+</div>
+<div class="path-comparison">
+<article class="path-panel">
+<div class="path-panel-heading">
+<div>
+<p class="eyebrow">EERST DE BREEDTE IN</p>
+<h2>BFS<span class="accent">.</span>
+</h2>
+</div>
+<span class="tag tag-green">KORTSTE PAD</span>
+</div>
+<p>Verkent eerst alle buren, dan de volgende laag. Vindt een kortste pad als elke stap even zwaar telt.</p>
+<div class="path-grid" id="bfs-grid" role="group" aria-label="BFS-raster" aria-describedby="instructions">
+</div>
+<p class="path-result" id="bfs-result" role="status">Klaar om te zoeken.</p>
+</article>
+<article class="path-panel">
+<div class="path-panel-heading">
+<div>
+<p class="eyebrow">EERST DE DIEPTE IN</p>
+<h2>DFS<span class="accent">.</span>
+</h2>
+</div>
+<span class="tag">VOLGT ÉÉN TAK</span>
+</div>
+<p>Volgt een richting zo ver mogelijk en keert daarna terug. Vindt een pad, maar garandeert geen kortste route.</p>
+<div class="path-grid" id="dfs-grid" role="group" aria-label="DFS-raster" aria-describedby="instructions">
+</div>
+<p class="path-result" id="dfs-result" role="status">Klaar om te zoeken.</p>
+</article>
+</div>
+<p class="path-instruction">Elk vak telt als één stap. Je kunt horizontaal en verticaal bewegen, niet diagonaal. Beide methodes proberen buren in dezelfde volgorde: rechts, beneden, links, boven. De kleuren laten zien welke vakken ze bezoeken.</p>
+</section>
+<aside class="play-note">
+<span aria-hidden="true">✳</span>
+<p>Wat gebeurt er als je een doorgang afsluit?<br>
+<strong>Verander het raster en vergelijk opnieuw.</strong>
+</p>
+<a class="text-link" href="../index.html#projecten">Naar alle projecten ↗</a>
+</aside>
+</main>
+<footer class="site-footer wrap">
+<a class="brand" href="../index.html">olaf<span class="brand-dot">.</span>
+</a>
+<p>Een digitale werkplaats. Altijd in ontwikkeling.</p>
+<a href="games.html">Naar het speelveld ↗</a>
+</footer>
+</body>
+</html>
